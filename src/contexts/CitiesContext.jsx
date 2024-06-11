@@ -42,11 +42,48 @@ function CitiesProvider({ children }) {
 
       setCurrentCity(data);
     } catch (err) {
-      console.log(err);
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  async function createCity(newCity) {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(`${BASE_URL}/cities`, {
+        method: "POST",
+        body: JSON.stringify(newCity),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+
+      setCities((cities) => [...cities, data]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function deleteCity(id) {
+    try {
+      setIsLoading(true);
+
+      await fetch(`${BASE_URL}/cities/${id}`, {
+        method: "DELETE",
+      });
+
+      setCities((cities) => cities.filter((city) => city.id !== id));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   if (error) return <Message message={error} />;
 
@@ -59,6 +96,8 @@ function CitiesProvider({ children }) {
         currentCity,
         setCurrentCity,
         getCityDescription,
+        createCity,
+        deleteCity,
       }}
     >
       {children}
